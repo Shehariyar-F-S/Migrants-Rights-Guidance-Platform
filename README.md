@@ -1,14 +1,14 @@
 # Migrants-Rights-Guidance-Platform
 
-A local Retrieval‑Augmented Generation (RAG) assistant that answers questions about migrants’ rights and procedures using official legal PDFs (e.g. the Dublin Regulation) as its only knowledge source.
+A local Retrieval‑Augmented Generation (RAG) assistant that answers questions about migrants’ rights and procedures using official legal PDFs (for example, the Dublin Regulation) as its only knowledge source.
 The system runs entirely on a laptop using open‑source tools (Ollama + Llama 3, ChromaDB, LangChain, Streamlit).
 
 🚀 Features
-Domain‑specific legal assistant for EU asylum/migration documents (starting with the Dublin Regulation).
+Domain‑specific legal assistant for EU asylum and migration documents (starting with the Dublin Regulation)
 
-Local‑only stack: all documents, embeddings, and LLM inference run on your machine.
+Local‑only stack: all documents, embeddings, and LLM inference run on your machine
 
-Multi‑PDF support: drop multiple PDFs into a folder and index them together.
+Multi‑PDF support: drop multiple PDFs into a folder and index them together
 
 RAG pipeline:
 
@@ -25,67 +25,64 @@ CLI Q&A (terminal)
 Web chat UI built with Streamlit
 
 🧱 Architecture
-Indexing step (offline)
+1. Indexing (offline)
+Load all PDFs from a data/ folder (for example, DUBLIN REGULATIONS.pdf and other guides)
 
-Load all PDFs from data/ (e.g. DUBLIN REGULATIONS.pdf and other guides).
+Split pages into overlapping text chunks
 
-Split pages into overlapping chunks.
+Create dense embeddings with a Sentence‑Transformer model (for example, all-MiniLM-L6-v2)
 
-Create embeddings with a Sentence‑Transformer model (e.g. all-MiniLM-L6-v2).
+Store embeddings, chunk texts, and metadata (including source filename) in a persistent ChromaDB collection (for example, dublin_chroma)
 
-Store embeddings, text, and metadata (including source filename) in a persistent ChromaDB collection (e.g. dublin_chroma).
-
-Retrieval & generation (online)
-
+2. Retrieval & generation (online)
 For each user question:
 
-Embed the question with the same model.
+Embed the question with the same Sentence‑Transformer model
 
-Retrieve top‑k similar chunks from Chroma.
+Retrieve top‑k similar chunks from Chroma
 
-Build a legal‑style prompt: “Answer only from this context; if not present, say you don’t know.”
+Build a legal‑style prompt: “answer only from this context; if not present, say you don’t know”
 
-Call Llama 3 running locally via Ollama to generate a concise answer.
+Call Llama 3 running locally via Ollama to generate a concise answer
 
-Optionally display which PDF each answer is grounded in.
+Optionally display which PDF each answer is grounded in
 
-User interfaces
+3. User interfaces
+CLI: ask questions in the terminal and receive answers as plain text
 
-CLI: ask questions in the terminal, get a text answer.
-
-Web UI (Streamlit): chat‑style interface with history, suitable for demoing in a browser.
+Web UI (Streamlit): chat‑style interface with history, suitable for demoing in a browser
 
 📂 Project structure
-Example layout (simplify/adjust if your repo differs):
+Example layout (adjust if your repo differs):
 
 text
 .
-├── data/
+├── app.py                # Streamlit web UI
+├── index_pdfs.py         # One‑time (or occasional) indexing script
+├── query_cli.py          # CLI question‑answer interface
+├── dublin_rag.py         # Core RAG logic (rag_answer function)
+├── requirements.txt
+├── README.md
+├── data/                 # Input PDFs (not committed if sensitive)
 │   ├── DUBLIN REGULATIONS.pdf
 │   └── other_documents.pdf
-├── db/                      # Chroma persistent data (auto‑created)
-├── index_pdfs.py            # One‑time (or occasional) indexing script
-├── query_cli.py             # CLI question‑answer interface
-├── dublin_rag.py            # Core RAG logic (rag_answer function)
-├── app.py                   # Streamlit web UI
-├── requirements.txt
-└── README.md
+└── db/                   # ChromaDB persistent data (generated)
 🔧 Setup
-Clone the repository
-
+1. Clone the repository
 bash
 git clone https://github.com/<your-username>/migrants-rights-guidance-platform.git
 cd migrants-rights-guidance-platform
-Create and activate a virtual environment (optional but recommended)
-
+2. (Optional) Create and activate a virtual environment
 bash
 python -m venv .venv
-source .venv/bin/activate  # on Windows: .venv\Scripts\activate
-Install dependencies
-
+# macOS / Linux
+source .venv/bin/activate
+# Windows
+# .venv\Scripts\activate
+3. Install dependencies
 bash
 pip install -r requirements.txt
-A typical requirements.txt for this project might include:
+A typical requirements.txt:
 
 text
 langchain
@@ -95,21 +92,19 @@ sentence-transformers
 pypdf
 streamlit
 ollama
-Install and set up Ollama
-
-Install Ollama from its official site.
+4. Install and configure Ollama
+Install Ollama from its official site
 
 Pull the Llama 3 model:
 
 bash
 ollama pull llama3
-Make sure running this works:
+Test that it runs:
 
 bash
 ollama run llama3
-Add your PDFs
-
-Place your legal PDFs in the data/ folder:
+5. Add PDFs
+Place your legal PDFs inside the data/ directory, for example:
 
 text
 data/
@@ -117,19 +112,19 @@ data/
  ├── guide_1.pdf
  └── guide_2.pdf
 🧮 Step 1 – Index the documents
-Run the indexing script (once or whenever you add/change PDFs):
+Run the indexing script (once or whenever the PDFs change):
 
 bash
 python index_pdfs.py
-What this does:
+This script:
 
-Iterates over all *.pdf in data/.
+Iterates over all *.pdf files in data/
 
-Extracts text and splits into chunks.
+Extracts text and splits it into chunks
 
-Embeds chunks with all-MiniLM-L6-v2.
+Embeds each chunk with all-MiniLM-L6-v2
 
-Stores embeddings + text in a ChromaDB collection under db/.
+Stores embeddings + text + metadata in a ChromaDB collection under db/
 
 💬 Step 2 – Ask questions (CLI)
 Use the terminal interface:
@@ -142,7 +137,7 @@ text
 Your question (or 'exit'): Who is responsible for examining an asylum application under the Dublin Regulation?
 
 Answer:
-<model answer here based on retrieved chunks>
+<model answer here>
 
 Your question (or 'exit'):
 🌐 Step 3 – Web UI (Streamlit)
@@ -152,16 +147,16 @@ bash
 streamlit run app.py
 Open the URL shown in the terminal (usually http://localhost:8501).
 
-In the browser you can:
+With the web app you can:
 
-Ask questions about the Dublin Regulation and related documents.
+Ask questions about the Dublin Regulation and related documents
 
-See answers generated by Llama 3, grounded in the indexed PDFs.
+See answers generated by Llama 3, grounded in the indexed PDFs
 
-Optionally see which source document each answer used.
+Optionally see which source document each answer used
 
 🔍 Example questions
-Some example questions you can try:
+You can try questions like:
 
 “Which country is responsible for examining my asylum application under the Dublin rules?”
 
@@ -174,26 +169,33 @@ Some example questions you can try:
 🧱 Tech stack
 Language model: Llama 3 (via Ollama, running locally)
 
-Framework & orchestration: LangChain
+Orchestration: LangChain
 
 Vector database: ChromaDB (persistent, local)
 
 Embeddings: Sentence‑Transformers (all-MiniLM-L6-v2)
 
-PDF processing: PyPDF or LangChain’s PyPDFLoader
+PDF processing: PyPDF / LangChain PyPDFLoader
 
-UI: Streamlit (web), simple Python CLI (terminal)
+UI: Streamlit (web), Python CLI (terminal)
 
 🌱 Future work
-Add multilingual support (e.g. English/German answers).
+Add multilingual support (for example, English and German answers)
 
-Expose article‑level citations and clickable references back into PDFs.
+Expose article‑level citations and links back into the PDFs
 
-Extend beyond Dublin to broader EU and national migration law.
+Extend beyond the Dublin Regulation to broader EU and national migration law
 
-Add authentication and role‑based access for NGOs or caseworkers.
+Add authentication and role‑based access for NGOs or caseworkers
 
 🤝 Contributing
-Pull requests and issues are welcome.
-Ideas: better prompts, additional document collections, improved UI/UX, evaluation scripts for answer quality.
+Contributions and ideas are welcome:
+
+Improving prompts
+
+Adding more document collections
+
+Enhancing the UI/UX
+
+Adding evaluation scripts for answer quality
 
