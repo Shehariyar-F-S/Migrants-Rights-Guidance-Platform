@@ -280,7 +280,7 @@ This tool is for informational purposes only and does not constitute legal advic
 
 ## 📧 Contact
 
-For questions, suggestions, or collaboration opportunities, please open an issue or reach out via [your contact method].
+For questions, suggestions, or collaboration opportunities, please open an issue or reach out via sher29.dev@gmail.com.
 
 ---
 
